@@ -35,18 +35,25 @@ const auth = new google.auth.GoogleAuth({
 // Create a Drive client
 const drive = google.drive({ version: 'v3', auth });
 
+// Graceful exit on Ctrl+C
+process.on('SIGINT', () => {
+  console.log('Received Ctrl+C signal. Exiting gracefully...');
+  process.exit(0);
+});
+
 /**
  * Run the main function.
  */
 main();
 
 /**
- * Main function.
+ * Main function, which starts with root_out and the passed startingFolderId.
  *
  * @returns {Promise<void>}
  */
 async function main() {
-  await listFiles(startingFolderId, root_out); // Pass 'out' as the initial parentDirectory
+  console.log(`google-drive-export starting export to '${root_out}'...`)
+  await listFiles(startingFolderId, root_out);
 }
 
 /**
