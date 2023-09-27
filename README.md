@@ -9,6 +9,7 @@ The script uses a service account for authentication, ensuring secure access to 
 Before using this script, make sure you have the following prerequisites:
 
 1. **Docker**: The recommended method for running this script is with Docker. You can download Docker Desktop or Docker CE from [docker.com](https://www.docker.com/).
+   
    **Node.js**: Alternatively, you can install Node.js on your machine. You can download it from [nodejs.org](https://nodejs.org/). This script was tested with Node.js v18.
 2. **Google Cloud Project**: You will need a Google Cloud project with the Google Drive API enabled.
 3. **Service Account**: Create a service account within your Google Cloud project and generate a JSON key file for authentication. You can find instructions for creating a service account and generating a key file in the [Google Cloud documentation](https://cloud.google.com/iam/docs/creating-managing-service-account-keys). Note that a service account has an email address associated with it, which you will need to grant access to your Google Drive files.
