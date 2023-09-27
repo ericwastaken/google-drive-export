@@ -8,6 +8,10 @@ The script uses a service account for authentication, ensuring secure access to 
 
 Note that if you edit the local copies of your exported files, they may be overwritten the next time you run the script. If you want to edit the exported files, you should copy them to a different directory first!
 
+This script's author is not affiliated with Google. It is provided as-is with no warranty or guarantee. Use at your own risk.
+
+> **Note:** Due to the Google Drive's API limitations, any files larger than 10MB can't be exported with this tool.
+
 ## Prerequisites
 
 Before using this script, make sure you have the following prerequisites:
