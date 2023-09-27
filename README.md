@@ -50,6 +50,7 @@ You can use multiple service accounts to export files from multiple Google Drive
 
 ## Help and Troubleshooting
 
+- If you make numerous directory changes in Google Drive, you may need to wait a few minutes (maybe hours) before the changes are reflected in the API. Otherwise, you may not accurately see the directory structure in the API and therefore won't export all the files. Luckily, this script can be re-run as many times as needed to export all the files, and since it checks for existing files in the output directory, it won't re-export files that have already been exported unless they have been updated.
 - This script was tested on macOS and Linux. For use with native NodeJS on Windows, you'll need to tweak the creation of folder paths to use Windows path separators. It's possible that file names also need to be tweaked/formatted for Windows. Alternatively, you can use Docker on Windows to run the script with the above instructions for Docker.
 - If you encounter issues or have questions about using the script, you can run the script with the `--help` flag to see usage information and examples:
   ```
