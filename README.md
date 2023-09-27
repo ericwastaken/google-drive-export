@@ -2,7 +2,11 @@
 
 This script allows you to export Google Docs, Sheets, and Slides to Microsoft Office formats (Docx, Xlsx, Pptx) and PDFs from a specific Google Drive directory. The script will recurse into Google Drive subdirectories from the starting directory ID that you specify and create a matching directory structure in the output directory. Your output directory can be any path that your workstation has access to, including a network drive. The script will check for existing files in the output directory and only export files that don't already exist or have been updated since the last export.
 
+Update in this script by default is that the remote Google Drive was updated more than 60 seconds after the local file's update time. This default can be changed by using the `--update-tolerance` flag. See [Other Options](#other-options) below for more details.
+
 The script uses a service account for authentication, ensuring secure access to your Google Drive files.
+
+Note that if you edit the local copies of your exported files, they may be overwritten the next time you run the script. If you want to edit the exported files, you should copy them to a different directory first!
 
 ## Prerequisites
 
@@ -56,6 +60,11 @@ If using NodeJS natively on your workstation, follow these steps to set up and u
    node app.mjs --output "./my_output_directory" --folder "your_folder_id" --keyfile "serviceAccountKey.json" --silent
    ```
    (Note, you can omit the "--silent" argument if you want to see the script output in the terminal.)
+
+## Other Options
+
+You can also specify the following optional command-line arguments to change the script behavior:
+- `--update-tolerance` - defined in seconds, determines when the script considers the remote google drive file updated. The default is 60 seconds meaning that if the Google Drive file is updated 60s or more after the local file update time, then it's considered updated and will be fetched and processed.
 
 ## Multiple Service Accounts
 

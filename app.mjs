@@ -7,10 +7,11 @@ const program = new Command();
  * Define command line options.
  */
 program
-  .requiredOption('-o, --output <output>', 'Output directory path (root_out)')
-  .requiredOption('-f, --folder <folder>', 'Starting folder ID (startingFolderId)')
-  .option('-k, --keyfile <keyfile>', 'Service Account Key file to use. Pass the file name only. Expected in the ./secrets directory.')
+  .requiredOption('-o, --output <string>', 'Output directory path (root_out)')
+  .requiredOption('-f, --folder <string>', 'Starting folder ID (startingFolderId)')
+  .option('-k, --keyfile <string>', 'Service Account Key file to use. Pass the file name only. Expected in the ./secrets directory.')
   .option('-s, --silent', 'Only logs errors')
+  .option('-u, --update-tolerance <number>', 'Determines the time difference, in seconds, when a file is considered updated on Google Drive. If a remote file and a local file have a time difference in excess of this tolerance, it\'s considered updated.')
   .description('Export Google Docs, Sheets, and Slides to Microsoft Office formats and PDF.')
   .showHelpAfterError(true)
   .parse(process.argv);
@@ -23,6 +24,8 @@ const root_out = options.output || './out';
 const startingFolderId = options.folder;
 // Set silent mode if the option was passed
 const silent = options.silent;
+// Set the update tolerance if the option was passed
+const updateTolerance = parseInt(options.updateTolerance) || 60; // Default to 60 seconds
 
 // Set the path to your service account JSON key file
 const SERVICE_ACCOUNT_KEY_FILE = `./secrets/${options.keyfile}` || './secrets/serviceAccountKey.json';
@@ -98,7 +101,7 @@ async function exportFile(file, parentPath) {
     // If it does, check if the file has been updated since the last export
     const stats = fs.statSync(nativeFilePath);
     const lastUpdateTime = stats.mtime;
-    if (new Date(file.modifiedTime) <= lastUpdateTime) {
+    if (isWithinTimeTolerance(new Date(file.modifiedTime), lastUpdateTime)) {
       // If it has not been updated, skip it
       if (!silent) console.log(`/// SKIPPING '${nativeFilePath}'. Last updated ${lastUpdateTime}`);
       return;
@@ -138,6 +141,11 @@ async function exportFile(file, parentPath) {
   } catch (error) {
     console.error(`!!! Error exporting file '${pdfFilePath}': ${error.message}`);
   }
+}
+
+function isWithinTimeTolerance(remoteModifiedTime, localModifiedTime) {
+  const timeDifferenceSeconds = Math.abs(remoteModifiedTime - localModifiedTime) / 1000; // Convert to seconds
+  return timeDifferenceSeconds <= updateTolerance; // Check if the time difference is less than or equal to 60 seconds (1 minute)
 }
 
 /**
