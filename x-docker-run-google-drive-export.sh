@@ -15,13 +15,20 @@ if [ -z "$2" ]; then
   exit 1
 fi
 
+# check that a file exists
+if [ ! -f "./secrets/$3" ]; then
+  echo "Please provide the path to an Account Service Key JSON file!"
+  exit 1
+fi
+
 # If we were passed a third argument with the string "silent", then we'll set the silent flag to true.
-if [ "$3" == "silent" ]; then
+if [ "$4" == "silent" ]; then
   SILENT_FLAG="--silent"
 fi
 
 EXPORT_DIR_PATH="$1"
 SOURCE_GOOGLE_DRIVE_DIR_ID="$2"
+ACCOUNT_SERVICE_KEY_JSON_PATH="$3"
 
 echo "'/export-out' -> '$EXPORT_DIR_PATH'"
 
@@ -32,4 +39,4 @@ docker run -it \
   -e SOURCE_GOOGLE_DRIVE_DIR_ID="$SOURCE_GOOGLE_DRIVE_DIR_ID" \
   -v "$EXPORT_DIR_PATH":/export-out/ \
   -w /app \
-  google-drive-export node app.mjs --output "/export-out" --folder "$SOURCE_GOOGLE_DRIVE_DIR_ID" $SILENT_FLAG
+  google-drive-export node app.mjs --output "/export-out" --folder "$SOURCE_GOOGLE_DRIVE_DIR_ID" --keyfile "$ACCOUNT_SERVICE_KEY_JSON_PATH" $SILENT_FLAG

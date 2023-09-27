@@ -9,6 +9,7 @@ const program = new Command();
 program
   .requiredOption('-o, --output <output>', 'Output directory path (root_out)')
   .requiredOption('-f, --folder <folder>', 'Starting folder ID (startingFolderId)')
+  .option('-k, --keyfile <keyfile>', 'Service Account Key file to use. Pass the file name only. Expected in the ./secrets directory.')
   .option('-s, --silent', 'Only logs errors')
   .description('Export Google Docs, Sheets, and Slides to Microsoft Office formats and PDF.')
   .showHelpAfterError(true)
@@ -24,7 +25,7 @@ const startingFolderId = options.folder;
 const silent = options.silent;
 
 // Set the path to your service account JSON key file
-const SERVICE_ACCOUNT_KEY_FILE = './serviceAccountKey.json';
+const SERVICE_ACCOUNT_KEY_FILE = `./secrets/${options.keyfile}` || './secrets/serviceAccountKey.json';
 
 // Create a JWT client using the service account key file
 const auth = new google.auth.GoogleAuth({

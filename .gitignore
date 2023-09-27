@@ -1,3 +1,4 @@
 /out/
 /serviceAccountKey.json
 /node_modules/
+/secrets/
