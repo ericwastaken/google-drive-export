@@ -1,6 +1,6 @@
 # Google Drive Export Script
 
-This script allows you to export Google Docs, Sheets, and Slides to Microsoft Office formats (Docx, Xlsx, Pptx) and PDFs from a specific Google Drive directory. The script will recurse into Google Drive subdirectories from the starting directory ID that you specify and create a matching directory structure in the output directory.
+This script allows you to export Google Docs, Sheets, and Slides to Microsoft Office formats (Docx, Xlsx, Pptx) and PDFs from a specific Google Drive directory. The script will recurse into Google Drive subdirectories from the starting directory ID that you specify and create a matching directory structure in the output directory. Your output directory can be any path that your workstation has access to, including a network drive. The script will check for existing files in the output directory and only export files that don't already exist or have been updated since the last export.
 
 The script uses a service account for authentication, ensuring secure access to your Google Drive files.
 
@@ -13,6 +13,18 @@ Before using this script, make sure you have the following prerequisites:
 2. **Google Cloud Project**: You will need a Google Cloud project with the Google Drive API enabled.
 3. **Service Account**: Create a service account within your Google Cloud project and generate a JSON key file for authentication. You can find instructions for creating a service account and generating a key file in the [Google Cloud documentation](https://cloud.google.com/iam/docs/creating-managing-service-account-keys). Note that a service account has an email address associated with it, which you will need to grant access to your Google Drive files.
 4. **Google Drive Directory**: Identify the specific Google Drive directory that you want to export files from and note its folder ID. Then grant your service account access to the directory by using the service account email. The service account only needs VIEW permission.
+
+## Definitions
+
+What is a Google Drive Folder Id?
+
+Navigate to any Google Drive folder in your browser. Observe the URL which will look something like this:
+```text
+https://drive.google.com/drive/u/0/folders/9iT7va0dagP5KaGelXo8-HbxQeKcn9pwc?ths=true
+```
+_(Note, this is not a valid folder id. It's the correct structure, but the folder id is fake here being used as an example.)_
+
+The Google Drive Folder Id is the part after `/folders/` and before `?`. In this example, the folder ID is `9iT7va0dagP5KaGelXo8-HbxQeKcn9pwc`. It uniquely identifies the folder in Google Drive. This is what we'll use to identify the starting directory for the script.
 
 ## Setup for Docker (Recommended)
 
