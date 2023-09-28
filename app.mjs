@@ -9,6 +9,7 @@ const program = new Command();
 program
   .requiredOption('-o, --output <string>', 'Output directory path (root_out)')
   .requiredOption('-f, --folder <string>', 'Starting folder ID (startingFolderId)')
+  .option('-t, --team-drive', 'Set this flag if the starting folder is a Shared Team Drive')
   .option('-k, --keyfile <string>', 'Service Account Key file to use. Pass the file name only. Expected in the ./secrets directory.')
   .option('-s, --silent', 'Only logs errors')
   .option('-u, --update-tolerance <number>', 'Determines the time difference, in seconds, when a file is considered updated on Google Drive. If a remote file and a local file have a time difference in excess of this tolerance, it\'s considered updated.')
@@ -26,6 +27,8 @@ const startingFolderId = options.folder;
 const silent = options.silent;
 // Set the update tolerance if the option was passed
 const updateTolerance = parseInt(options.updateTolerance) || 60; // Default to 60 seconds
+// Set an option to indicate the root folder is in a Shared Team Drive
+const rootIsTeamDrive = options.teamDrive;
 
 // Set the path to your service account JSON key file
 const SERVICE_ACCOUNT_KEY_FILE = `./secrets/${options.keyfile}` || './secrets/serviceAccountKey.json';
@@ -57,7 +60,8 @@ main();
  */
 async function main() {
   console.log(`google-drive-export starting export to '${root_out}'...`)
-  await listFiles(startingFolderId, root_out);
+  // Start at the root, notice if the root is a Shared Team Drive we pass the startingFolderId as the sharedDriveId which will be retained in the recursion.
+  await listFiles(startingFolderId, root_out, rootIsTeamDrive ? startingFolderId : null);
 }
 
 /**
@@ -172,16 +176,35 @@ function createSubDirectory(directoryPath) {
  *
  * @param folderId - the Google Drive folder ID to start listing files from
  * @param parentPath - the full drive path to directory where files will be exported into.
+ * @param sharedDriveId - the shared drive ID, if applicable. If passes, the search will happen inside a Shared Team
+ *  Drive as opposed to the user's My Drive.
  * @returns {Promise<void>}
  */
-async function listFiles(folderId, parentPath) {
+async function listFiles(folderId, parentPath, sharedDriveId = null) {
+  // An object to hold the resulting list dat
+  let data;
+
   try {
-    // List all files in the folder (this will also include subdirectories)
-    const { data } = await drive.files.list({
-      q: `'${folderId}' in parents`,
-      fields: 'files(id, name, mimeType, createdTime, modifiedTime)',
-      trashed: false,
-    });
+    // If we have a sharedDriveId, we have to do a Shared Team Drive search
+    if (sharedDriveId) {
+      // List all files in the folder (this will also include subdirectories)
+      data = (await drive.files.list({
+        q: `'${folderId}' in parents`,
+        fields: 'files(id, name, mimeType, createdTime, modifiedTime)',
+        trashed: false,
+        driveId: `${sharedDriveId}`,
+        includeItemsFromAllDrives: true,
+        corpora: 'drive',
+        supportsAllDrives: true,
+      })).data;
+    } else {
+        // List all files in the folder (this will also include subdirectories)
+        data = (await drive.files.list({
+          q: `'${folderId}' in parents`,
+          fields: 'files(id, name, mimeType, createdTime, modifiedTime)',
+          trashed: false,
+        })).data;
+    }
 
     // Loop through the files and export them (or recurse if it's a subdirectory)
     for (const file of data.files) {
@@ -194,7 +217,7 @@ async function listFiles(folderId, parentPath) {
           const subDirectoryPath = `${parentPath}/${file.name.trim()}`;
           createSubDirectory(subDirectoryPath);
           // Recurse into the subdirectory using the subdirectory's ID and passing the subdirectory's path as the parentPath
-          await listFiles(file.id, subDirectoryPath);
+          await listFiles(file.id, subDirectoryPath, sharedDriveId);
         } else {
           // If the current 'file' is actually a file, export it
           await exportFile(file, parentPath);

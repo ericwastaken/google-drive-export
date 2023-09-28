@@ -1,6 +1,8 @@
 # Google Drive Export Script
 
-This script allows you to export Google Docs, Sheets, and Slides to Microsoft Office formats (Docx, Xlsx, Pptx) and PDFs from a specific Google Drive directory. The script will recurse into Google Drive subdirectories from the starting directory ID that you specify and create a matching directory structure in the output directory. Your output directory can be any path that your workstation has access to, including a network drive. The script will check for existing files in the output directory and only export files that don't already exist or have been updated since the last export.
+This script allows you to export Google Docs, Sheets, and Slides to Microsoft Office formats (Docx, Xlsx, Pptx) and PDFs from a specific Google Drive directory or from Shared/Team Drives. 
+
+The script will recurse into Google Drive subdirectories from the starting directory ID that you specify and create a matching directory structure in the output directory. Your output directory can be any path that your workstation has access to, including a network drive. The script will check for existing files in the output directory and only export files that don't already exist or have been updated since the last export.
 
 Update in this script by default is that the remote Google Drive was updated more than 60 seconds after the local file's update time. This default can be changed by using the `--update-tolerance` flag. See [Other Options](#other-options) below for more details.
 
@@ -69,6 +71,7 @@ If using NodeJS natively on your workstation, follow these steps to set up and u
 
 You can also specify the following optional command-line arguments to change the script behavior:
 - `--update-tolerance` - defined in seconds, determines when the script considers the remote google drive file updated. The default is 60 seconds meaning that if the Google Drive file is updated 60s or more after the local file update time, then it's considered updated and will be fetched and processed.
+- `--team-drive` - if the root folder is a shared/team drive, you must specify this flag to enable shared drive support. Otherwise, the script will run but will not actually export any files.
 
 ## Multiple Service Accounts
 
@@ -88,6 +91,11 @@ You can use multiple service accounts to export files from multiple Google Drive
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
----
+## References
 
-Happy exporting!
+* [Google Drive API, Implement shared drive support](https://developers.google.com/drive/api/guides/enable-shareddrives)
+* [Google Drive API, files.list method](https://developers.google.com/drive/api/reference/rest/v3/files/list)
+
+## Roadmap
+
+Refer to [GitHub issues](https://github.com/ericwastaken/google-drive-export/issues) for planned enhancements and bug fixes.
