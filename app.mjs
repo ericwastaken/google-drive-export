@@ -30,8 +30,11 @@ const updateTolerance = parseInt(options.updateTolerance) || 60; // Default to 6
 // Set an option to indicate the root folder is in a Shared Team Drive
 const rootIsTeamDrive = options.teamDrive;
 
+// Where is this script running?
+const scriptPath = process.cwd();
+
 // Set the path to your service account JSON key file
-const SERVICE_ACCOUNT_KEY_FILE = `./secrets/${options.keyfile}` || './secrets/serviceAccountKey.json';
+const SERVICE_ACCOUNT_KEY_FILE = `${scriptPath}/secrets/${options.keyfile}` || './secrets/serviceAccountKey.json';
 
 // Create a JWT client using the service account key file
 const auth = new google.auth.GoogleAuth({
@@ -59,7 +62,7 @@ main();
  * @returns {Promise<void>}
  */
 async function main() {
-  console.log(`google-drive-export starting export to '${root_out}'...`)
+  console.log(`google-drive-export starting with options: ${JSON.stringify(options)}`);
   // Start at the root, notice if the root is a Shared Team Drive we pass the startingFolderId as the sharedDriveId which will be retained in the recursion.
   await listFiles(startingFolderId, root_out, rootIsTeamDrive ? startingFolderId : null);
 }
