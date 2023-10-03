@@ -2,19 +2,25 @@
 
 This script allows you to export Google Docs, Sheets, and Slides to Microsoft Office formats (Docx, Xlsx, Pptx) and PDFs from a specific Google Drive directory or from Shared/Team Drives. 
 
-But dude, why is this tool necessary? Doesn't Google Drive for Desktop already do this? Actually, it turns out the Google Drive for Desktop as well as many other Google Drive mount solutions (like Cloud Mounter) give you access to Google Drive files sure. And you can access PDF, images, and other files you've stored including Google Docs formats (Docs, Sheets, and Slides). You can copy those, and even back them all up to your favorite backup. However, when you retrieve them later you'll notice that the Google Docs, Sheets and Slides files are not actually your data at all. Instead, they are small text files that are links to the actual files kept in your Google Drive. So if you want to export the actual files, you have to do it manually! If you have a few files, no big deal. But if you have hundreds or thousands of files in many directories, then this script allows you to automatically export all these Google Docs, Sheets, and Slides into Office native formats. I am a huge advocate of Google Docs, Sheets, and Slides, but I also would like to keep my data safely backed up in case Google (or some bad actor) locks me out!
+Why is this tool even necessary, you might wonder? Doesn't Google Drive for Desktop already handle this task? Well, it's a bit more complicated than that. Google Drive for Desktop, along with various other Google Drive mounting solutions like Cloud Mounter, indeed grants you access to your Google Drive files. You can access a wide range of files, including PDFs, images, and other formats, even Google Docs files like Docs, Sheets, and Slides. You can copy them and back them up to your preferred backup solution.
 
-This script will recurse into Google Drive subdirectories from the starting directory ID that you specify and create a matching directory structure in the output directory. The script will then only export Google Docs, Sheets and Slides to their corresponding Office format as well as a PDF. Your output directory can be any path that your workstation has access to, including a network drive. The script will check for existing files in the output directory and only export files that don't already exist or have been updated since the last export.
+However, here's the catch: those Google Docs, Sheets, and Slides files aren't actually your raw data. Instead, they're small text files that function as links to the real files stored in your Google Drive. So, if you want to export the actual files, you've got to do it manually! If you only have a few files, no big deal. But imagine having hundreds or thousands of files scattered across numerous directories. That's where this script comes in handy – it automates the process of exporting all those Google Docs, Sheets, and Slides into native Office formats.
+
+I'm a big fan of Google Docs, Sheets, and Slides myself, but I also value having my data securely backed up just in case Google or some other unforeseen issue comes into play!
+
+This script will recurse into Google Drive subdirectories from the starting directory ID that you specify and create a matching directory structure in the output directory. The script will then only export Google Docs, Sheets and Slides to their corresponding Office format as well as a PDF of each. Your output directory can be any path that your workstation has access to, including a network drive. The script will check for existing files in the output directory and only export files that don't already exist or have been updated since the last export.
 
 A remote update to this script defaults to a remote time of 60 seconds after the local file's update time. This default can be changed by using the `--update-tolerance` flag. See [Other Options](#other-options) below for more details.
 
-The script uses a service account for authentication, ensuring secure access to your Google Drive files.
+The script uses a Google Cloud Platform Service Account for authentication, ensuring secure access to your Google Drive files.
 
 Note that if you edit the local copies of your exported files, they may be overwritten the next time you run the script. If you want to edit the exported files, you should copy them to a different directory first!
 
 This script's author is not affiliated with Google. It is provided as-is with no warranty or guarantee. Use at your own risk.
 
-> **Note:** Due to the Google Drive's API limitations, any files larger than 10MB can't be exported with this tool.
+> **Notes:** 
+> - Due to the Google Drive's API limitations, any files larger than 10MB can't be exported with this tool.
+> - Google Drive allows directory and file names containing "/" (forward slash). Since Unix, Linux and POSIX systems don't allow the "/" in names, that character is replaced with an "_" (underscore.)
 
 ## Prerequisites
 
@@ -72,17 +78,17 @@ If using NodeJS natively on your workstation, follow these steps to set up and u
 ## Other Options
 
 You can also specify the following optional command-line arguments to change the script behavior:
-- `--update-tolerance` - defined in seconds, determines when the script considers the remote google drive file updated. The default is 60 seconds meaning that if the Google Drive file is updated 60s or more after the local file update time, then it's considered updated and will be fetched and processed.
+- `--update-tolerance 60` - defined in seconds, the number you pass determines when the script considers the remote google drive file updated. The default is 60 seconds meaning that if the Google Drive file is updated 60s or more after the local file update time, then it's considered updated and will be fetched and processed.
 - `--team-drive` - if the root folder is a shared/team drive, you must specify this flag to enable shared drive support. Otherwise, the script will run but will not actually export any files.
 
 ## Multiple Service Accounts
 
-You can use multiple service accounts to export files from multiple Google Drive directories. To do this, you will need to save the key file for each account into the `./secrets` directory giving each a unique name. Then you specify the service account key file to use when running the script. 
+You can use multiple service accounts to export files from multiple Google Drive directories. To do this, you will need to save the key file for each account into the `./secrets` directory giving each a unique name. Then you specify the service account key file to use when running the script using the `--keyfile` argument.
 
 ## Help and Troubleshooting
 
 - If you make numerous directory changes in Google Drive, you may need to wait a few minutes (maybe hours) before the changes are reflected in the API. Otherwise, you may not accurately see the directory structure in the API and therefore won't export all the files. Luckily, this script can be re-run as many times as needed to export all the files, and since it checks for existing files in the output directory, it won't re-export files that have already been exported unless they have been updated.
-- This script was tested on macOS and Linux. For use with native NodeJS on Windows, you'll need to tweak the creation of folder paths to use Windows path separators. It's possible that file names also need to be tweaked/formatted for Windows. Alternatively, you can use Docker on Windows to run the script with the above instructions for Docker.
+- This script was tested on macOS and Linux. For use with native NodeJS on Windows, you'll possibly need to tweak the creation of folder paths to use Windows path separators. It's possible that file names also need to be tweaked/formatted for Windows. Alternatively, you can use Docker on Windows to run the script with the above instructions for Docker.
 - If you encounter issues or have questions about using the script, you can run the script with the `--help` flag to see usage information and examples:
   ```
   node app.mjs --help
