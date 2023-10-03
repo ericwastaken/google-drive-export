@@ -27,8 +27,8 @@ const startingFolderId = options.folder;
 const silent = options.silent;
 // Set the update tolerance if the option was passed
 const updateTolerance = parseInt(options.updateTolerance) || 60; // Default to 60 seconds
-// Set an option to indicate the root folder is in a Shared Team Drive
-const rootIsTeamDrive = options.teamDrive;
+// Set an option to indicate the Starting Google Folder is in a Shared Team Drive
+const startingFolderIsTeamDrive = options.teamDrive;
 
 // Where is this script running?
 const scriptPath = process.cwd();
@@ -64,7 +64,7 @@ main();
 async function main() {
   console.log(`google-drive-export starting with options: ${JSON.stringify(options)}`);
   // Start at the root, notice if the root is a Shared Team Drive we pass the startingFolderId as the sharedDriveId which will be retained in the recursion.
-  await listFiles(startingFolderId, root_out, rootIsTeamDrive ? startingFolderId : null);
+  await listFiles(startingFolderId, root_out, startingFolderIsTeamDrive ? startingFolderId : null);
 }
 
 /**
@@ -80,6 +80,9 @@ async function exportFile(file, parentPath) {
   const outDir = parentPath;
   const mimeType = file.mimeType;
   const fileId = file.id;
+  // Trim the file name and replace any slashes with underscores
+  // Directories can't contain "/" in Unix/Linux/POSIX systems despite Google Drive allowing it in names
+  const fileNameTrimmed = file.name.trim().replace(/\//g, '_');
   // Define export formats based on the mimeType
   let exportMimeType = '';
   let fileExtension = '';
@@ -100,8 +103,8 @@ async function exportFile(file, parentPath) {
   }
 
   // Define the file paths for the output files
-  const nativeFilePath = `${outDir}/${file.name}.${fileExtension}`;
-  const pdfFilePath = `${outDir}/${file.name}.pdf`;
+  const nativeFilePath = `${outDir}/${fileNameTrimmed}.${fileExtension}`;
+  const pdfFilePath = `${outDir}/${fileNameTrimmed}.pdf`;
 
   // Check if the file already exists
   if (fs.existsSync(nativeFilePath)) {
@@ -178,7 +181,7 @@ function createSubDirectory(directoryPath) {
  * This is a recursive function that will call itself for each subdirectory until full-depth is reached.
  *
  * @param folderId - the Google Drive folder ID to start listing files from
- * @param parentPath - the full drive path to directory where files will be exported into.
+ * @param parentPath - the full drive path to the directory where files will be exported into.
  * @param sharedDriveId - the shared drive ID, if applicable. If passes, the search will happen inside a Shared Team
  *  Drive as opposed to the user's My Drive.
  * @returns {Promise<void>}
@@ -213,11 +216,14 @@ async function listFiles(folderId, parentPath, sharedDriveId = null) {
     for (const file of data.files) {
       // We only care about Google Docs, Sheets, and Slides, so skip everything else
       if (file.mimeType.includes('application/vnd.google-apps')) {
-        if (!silent) console.log(`>>> Processing '${file.name}' (${file.mimeType})`);
+        // Trim the file name and replace any slashes with underscores
+        // Directories can't contain "/" in Unix/Linux/POSIX systems despite Google Drive allowing it in names
+        const fileNameTrimmed = file.name.trim().replace(/\//g, '_');
+        if (!silent) console.log(`>>> Processing '${fileNameTrimmed}' (${file.mimeType})`);
         // If the current 'file' is a subdirectory, create it locally
         if (file.mimeType === 'application/vnd.google-apps.folder') {
           // Create the subdirectory, notice we trim the name to remove any whitespace
-          const subDirectoryPath = `${parentPath}/${file.name.trim()}`;
+          const subDirectoryPath = `${parentPath}/${fileNameTrimmed}`;
           createSubDirectory(subDirectoryPath);
           // Recurse into the subdirectory using the subdirectory's ID and passing the subdirectory's path as the parentPath
           await listFiles(file.id, subDirectoryPath, sharedDriveId);
