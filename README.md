@@ -1,8 +1,6 @@
 # Google Drive Export
 
-<div style="float: right; margin: 0 10px 0 10px;">
-    ![cloud-to-local](docs/images/cloud-to-local-small.png)
-</div>
+![cloud-to-local](docs/images/cloud-to-local-small.png)
 
 This tool allows you to export Google Docs, Sheets, and Slides to Microsoft Office formats (Docx, Xlsx, Pptx) and PDFs from a specific Google Drive directory or from Shared/Team Drives. 
 
